@@ -1,0 +1,195 @@
+.container{
+    display: inline;
+   flex-direction: row;
+
+
+}
+
+.nar{
+    margin-right: 100;
+    
+}
+.container img{
+    height: 50px;
+    width: auto;
+
+}
+.heading {
+margin-top: 300px;
+justify-content: center;
+text-align: center;
+}
+
+.heading h1{
+    color: cadetblue;
+    font-weight: bold;
+    font-size: 90;
+}
+.bar{
+    display: inline;
+    flex-direction: row; 
+    
+}
+
+.logo{
+    margin-top: 50;
+    display: inline;
+    flex-direction: row; 
+   
+}
+
+.logo1{
+   display: relative;
+    flex-direction: row; 
+    margin-top: 50;
+    margin-left: 100;
+}
+
+
+
+.hero1{
+margin-top: 50;
+display: inline;
+flex-direction: row;
+}
+.hero1 h2{
+    font-size: 50;
+    color:   black;
+
+}
+
+.hero img{
+    width: auto;
+    height: 300;
+}
+
+
+
+
+
+.faq{
+    min-height: 100vh;
+    width: 100vw;
+    text-align: center;
+    padding: 0 2rem;
+}
+
+.faq .row{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2rem;
+}
+
+.faq .row .image img{
+    height: auto;
+    width: 800;
+}
+
+@media only screen and (max-width:430px){
+    .faq-flex{
+        display: flex;
+        flex-wrap: wrap;
+    }
+}
+
+.faq .row .accordion-container{
+    width: 50%;
+    text-align: left;
+}
+
+.faq .row .accordion-container .accordion .accordion-header{
+    background-color: rgb(4, 4, 89);
+    margin: 1rem 0;
+    box-shadow: .1rem .1rem .3rem rgb(0,0,0,.3);
+    cursor: pointer;
+}
+
+.faq .row .accordion-container .accordion .accordion-header span{
+    display: inline-block;
+    text-align: center;
+    height: 4rem;
+    width: 5rem;
+    line-height: 4rem;
+    font-size: 2rem;
+    background: #fff;
+    color: #333;
+    clip-path: polygon(0% 0%, 75% 0%,100% 50%, 75% 100%, 0% 100%);
+}
+
+.faq .row .accordion-container .accordion .accordion-header h3{
+    display: inline;
+    color: #fff;
+    font-weight: 400;
+    padding-left: .5rem;
+    font-size: 1.5rem;
+}
+
+.faq .row .accordion-container .accordion .accordion-body{
+    padding: 1rem;
+    color: #444;
+    box-shadow: .1rem .1rem .3rem rgb(0,0,0,.3);
+    display: none;
+}
+
+.faq .row .accordion-container .accordion:nth-child(1) .accordion-body{
+ display: block;
+}
+
+
+.footer .bcont{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
+    gap: 1.5rem;
+    
+}
+.footer .bcont .box h3{
+    font-size: 2.2rem;
+    color: var(--black);
+    padding: 1rem 0;
+}
+.footer .bcont .box a{
+    display: block;
+    font-size: 1.4rem;
+    color: var(--light-color);
+    padding: 1rem 0;
+}
+.footer .bcont .box a i{
+    color: var(--green);
+    padding-right: .5rem
+}
+.footer .bcont .box a:hover i{
+    padding-right: 2rem;
+}
+.footer .bcont .box map{
+    width: 100%;
+}
+.footer .share{
+    padding: 1rem 0;
+    text-align: center;
+}
+.footer .share a{
+    height: 5rem;
+    width: 5rem;
+    line-height: 5rem;
+    font-size: 2rem;
+    color: #fff;
+    background: var(--green);
+    margin:0 .3rem;
+    border-radius:50% ;
+}
+.footer .share a:hover{
+    background: var(---black);
+}
+.footer .credit{
+    border-top:var(--border);
+    margin-top: 2rem;
+    padding: 0 1rem;
+    padding-top: 2.5rem;
+    font-size: 2rem;
+    color: var(--light-color);
+    text-align: center;
+}
+.footer .credit span{
+    color: var(--green);
+    }
