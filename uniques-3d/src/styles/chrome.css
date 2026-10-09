@@ -1,0 +1,59 @@
+/* Nav + footer chrome carried over from v1. */
+/* ---------- Nav ---------- */
+.nav { position: fixed; z-index: 90; top: 0; left: 0; right: 0; padding: 14px var(--gutter); transition: padding 0.4s var(--ease); }
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  max-width: 1320px; margin: 0 auto; padding: 10px 10px 10px 20px;
+  border: 1px solid transparent; border-radius: 999px;
+  transition: background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease;
+}
+.nav.is-solid .nav-inner { background: rgba(12, 12, 12, 0.72); border-color: var(--line); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); }
+.nav-logo img { height: 30px; width: auto; }
+.nav-links { display: flex; gap: 4px; }
+.nav-links a { position: relative; padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--ink-2); transition: color 0.25s ease, background 0.25s ease; }
+.nav-links a:hover { color: var(--ink); background: rgba(255, 255, 255, 0.06); }
+.nav-right { display: flex; align-items: center; gap: 8px; }
+.nav-cta { min-height: 40px; padding: 0 20px; font-size: 14px; }
+.nav-burger { display: none; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line-strong); background: rgba(12, 12, 12, 0.6); cursor: pointer; position: relative; }
+.nav-burger span { position: absolute; left: 13px; right: 13px; height: 1.5px; background: var(--ink); transition: transform 0.35s var(--ease); }
+.nav-burger span:first-child { top: 17px; }
+.nav-burger span:last-child { top: 23px; }
+.nav.is-open .nav-burger span:first-child { transform: translateY(3px) rotate(45deg); }
+.nav.is-open .nav-burger span:last-child { transform: translateY(-3px) rotate(-45deg); }
+.nav-sheet { display: none; }
+
+@media (max-width: 860px) {
+  .nav-links, .nav-cta { display: none; }
+  .nav-burger { display: block; }
+  .nav-inner { padding-left: 14px; }
+  .nav-logo img { height: 24px; }
+  .nav-sheet {
+    position: fixed; inset: 0; z-index: -1; display: flex; flex-direction: column; justify-content: center; gap: 6px;
+    padding: 100px var(--gutter) 40px; background: rgba(7, 7, 7, 0.97); backdrop-filter: blur(20px);
+    opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s;
+  }
+  .nav.is-open .nav-sheet { opacity: 1; visibility: visible; }
+  .nav-sheet a:not(.btn) { display: flex; align-items: baseline; gap: 14px; padding: 8px 0; font-size: clamp(36px, 11vw, 56px); font-weight: 700; letter-spacing: -0.05em; transform: translateY(20px); opacity: 0; transition: transform 0.6s var(--ease), opacity 0.6s ease; transition-delay: calc(var(--i) * 60ms); }
+  .nav-sheet a span { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; color: var(--red-hot); }
+  .nav.is-open .nav-sheet a { transform: none; opacity: 1; }
+  .nav-sheet .btn { margin-top: 24px; align-self: flex-start; }
+}
+
+/* ---------- Footer ---------- */
+.footer { position: relative; overflow: hidden; padding: 80px 0 28px; border-top: 1px solid var(--line); background: #060606; }
+.footer-grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 32px; }
+.footer-brand img { height: 34px; width: auto; }
+.footer-brand p { max-width: 360px; margin: 18px 0 0; font-size: 14px; color: var(--ink-3); }
+.footer-col h4 { margin: 0 0 14px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+.footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.footer-col a { font-size: 15px; color: var(--ink-2); transition: color 0.25s ease; }
+.footer-col a:hover { color: var(--red-hot); }
+.footer-word { margin: 60px 0 10px; font-size: clamp(70px, 19vw, 300px); font-weight: 800; line-height: 0.8; letter-spacing: -0.08em; text-align: center; color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12); background: linear-gradient(180deg, rgba(202, 0, 25, 0.5), transparent 80%); -webkit-background-clip: text; background-clip: text; user-select: none; }
+.footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
+.footer-socials { display: flex; flex-wrap: wrap; gap: 18px; }
+.footer-socials a:hover { color: var(--red-hot); }
+
+@media (max-width: 760px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .footer-brand { grid-column: 1 / -1; }
+}

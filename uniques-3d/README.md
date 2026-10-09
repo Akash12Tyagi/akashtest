@@ -10,21 +10,29 @@ npm run dev      # local dev server
 npm run build    # static build in dist/ (relative paths — deploy anywhere)
 ```
 
-## Sections → 3D treatment
+## How it works
 
-| # | Homepage section | Treatment |
-|---|------------------|-----------|
-| — | HomeHero | WebGL (three.js) infinite poster corridor; scroll accelerates the flight, pointer steers the camera |
-| 01 | Counts | Count-up stats on pointer-tilt cards with cursor glow |
-| 02 | AboutSection + Main Focus | Editorial 3D carousel (5 focus pillars), drag / arrows / autoplay |
-| 03 | WhyUs | Layered tilt cards with Z-depth content |
-| 04 | CommunityPartners | Rotating CSS-3D partner ring + marquee |
-| 05 | Startups | Sticky stacked browser cards that sink back in Z as the next arrives |
-| 06 | Event | Perspective ribbon (rotateY panels), drag / arrows / autoplay |
-| 07 | Gallery | Draggable 3D photo cylinder with inertia + lightbox |
-| 08 | YoutubeSection | Tilted 3D screen, click-to-load video |
-| 09 | Testimonials | Students / Faculty / Professionals tabs on a 3D card deck |
-| — | CallToAction + Footer | Orbiting 3D rings, full footer link map |
+The whole page is one WebGL world (`src/world/World.js`, three.js). Twelve HTML chapters
+(`src/components/Chapters.jsx`) scroll over a fixed canvas; each chapter's centre maps to a
+station on a Catmull-Rom camera rail, so scrolling flies the camera through the world.
+Copy stays as real HTML for legibility, accessibility and SEO.
+
+| Chapter | Station in the world |
+|---------|----------------------|
+| Intro / Journey | Poster corridor you fly through, exiting via a neon portal |
+| Impact | Extruded 3D numbers (8.6L+, 100+, 150+, 40+) in red lacquer, bone and chrome |
+| About | Ring of five Main Focus cards orbiting an extruded TU mark |
+| Why us | Four monoliths on a chrome plinth |
+| Partners | Glossy TU sphere with an orbiting ring of 12 partner tiles |
+| Startups | Three browser panels that fan apart as you scroll (click to visit) |
+| Events | Nine event panels on a rising helix |
+| Gallery | You stand inside a drum of all 23 photos: drag to spin, click to open |
+| Channel | Curved cinema screen (click to watch on YouTube) |
+| Stories | 3D testimonial deck synced to the Students / Faculty / Professionals tabs |
+| Join | Extruded JOIN US with orbiting neon rings |
+
+Bloom post-processing on desktop, capped dust particles, PMREM room lighting, a preloader,
+and a chapter HUD on the right. Mobile drops bloom and re-frames the camera rail.
 
 ## Images
 

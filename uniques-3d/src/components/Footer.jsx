@@ -1,24 +1,5 @@
 import React from 'react';
-import { FOOTER, JOIN_URL, LOGO, SITE } from '../data.js';
-import { Reveal } from './shared.jsx';
-
-export function CallToAction() {
-  return (
-    <section className="cta" id="join">
-      <div className="cta-orbit" aria-hidden="true">
-        <span className="cta-ring r1" /><span className="cta-ring r2" /><span className="cta-ring r3" />
-      </div>
-      <div className="wrap cta-inner">
-        <Reveal as="h2" className="cta-title">Join Us <em>Today</em></Reveal>
-        <Reveal as="p" className="lead cta-lead" delay={100}>Join the community of unique individuals and learn from the best</Reveal>
-        <Reveal className="cta-actions" delay={180}>
-          <a className="btn btn-red" href={JOIN_URL} target="_blank" rel="noreferrer">Join on WhatsApp <span aria-hidden="true">↗</span></a>
-          <a className="btn btn-ghost" href={`${SITE}/auth/login`} target="_blank" rel="noreferrer">Login</a>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
+import { FOOTER, LOGO, SITE } from '../data.js';
 
 export default function Footer() {
   return (
