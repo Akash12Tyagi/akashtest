@@ -29,6 +29,9 @@ const CENTERS = {
   join: V(0, 0, -1075),
 };
 
+// Nebula warmth per chapter (0 = near-black, 1 = deep Uniques red).
+const HEAT = [0.2, 0.35, 0.55, 0.4, 0.3, 0.85, 0.35, 0.5, 0.25, 0.6, 0.35, 1];
+
 const GAP = 8.25;
 const TUNNEL_SEGMENTS = 17;
 const HALF_W = 4.82;
@@ -73,6 +76,10 @@ export class World {
     pmrem.dispose();
 
     this.camera = new THREE.PerspectiveCamera(60, 1, 0.1, 400);
+    this.baseFov = 60;
+    this.warp = 0;
+    this.prevU = 0;
+    scene.add(this.camera);
     this.lookAt = new THREE.Vector3();
 
     scene.add(new THREE.HemisphereLight(0xfff4ec, 0x1a0004, 0.75));
@@ -93,6 +100,8 @@ export class World {
     };
     this.alphaMaps = new Map();
 
+    this.buildSky();
+    this.buildWarp();
     this.buildAtmosphere();
     this.buildTunnel();
     this.buildImpact();
@@ -187,6 +196,91 @@ export class World {
   clickable(mesh, data) {
     mesh.userData.pick = data;
     this.clickables.push(mesh);
+  }
+
+  // ---------- sky + warp ----------
+
+  buildSky() {
+    const material = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uHeat: { value: HEAT[0] }, uWarp: { value: 0 } },
+      vertexShader: `
+        varying vec3 vDir;
+        void main() {
+          vDir = normalize(position);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uHeat;
+        uniform float uWarp;
+        varying vec3 vDir;
+        float hash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 45.164))) * 43758.5453); }
+        float noise(vec3 p) {
+          vec3 i = floor(p); vec3 f = fract(p); f = f * f * (3.0 - 2.0 * f);
+          return mix(mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x), mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+                     mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x), mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+        }
+        float fbm(vec3 p) { float v = 0.0; float a = 0.5; for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.03; a *= 0.5; } return v; }
+        void main() {
+          vec3 d = normalize(vDir);
+          float n = fbm(d * 2.4 + vec3(0.0, uTime * 0.012, uTime * 0.02));
+          float m = fbm(d * 5.0 - vec3(uTime * 0.01));
+          float cloud = smoothstep(0.58, 0.98, n * 0.75 + m * 0.35);
+          vec3 base = vec3(0.012, 0.011, 0.012);
+          vec3 red = vec3(0.11, 0.0, 0.012);
+          vec3 hot = vec3(0.3, 0.01, 0.04);
+          vec3 col = base + red * cloud * uHeat + hot * pow(cloud, 3.0) * uHeat * 0.35;
+          // Horizon glow toward the travel direction, brighter at warp speed.
+          float ahead = pow(max(0.0, -d.z), 6.0);
+          col += vec3(0.35, 0.01, 0.04) * ahead * (0.04 + uWarp * 0.8) * (0.4 + uHeat);
+          float star = step(0.9985, hash(floor(d * 900.0)));
+          col += vec3(star) * 0.55;
+          gl_FragColor = vec4(col, 1.0);
+        }`,
+      side: THREE.BackSide, depthWrite: false, depthTest: false, fog: false,
+    });
+    this.sky = new THREE.Mesh(new THREE.SphereGeometry(350, 48, 24), material);
+    this.sky.renderOrder = -10;
+    this.sky.frustumCulled = false;
+    this.scene.add(this.sky);
+    this.disposables.push(this.sky.geometry, material);
+  }
+
+  buildWarp() {
+    const count = this.mobile ? 160 : 320;
+    const pos = new Float32Array(count * 6);
+    this.warpSeeds = [];
+    for (let i = 0; i < count; i += 1) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 3 + Math.random() * 16;
+      const z = -2 - Math.random() * 90;
+      const len = 2 + Math.random() * 6;
+      this.warpSeeds.push({ x: Math.cos(a) * r, y: Math.sin(a) * r * 0.7, z, len });
+      pos.set([Math.cos(a) * r, Math.sin(a) * r * 0.7, z, Math.cos(a) * r, Math.sin(a) * r * 0.7, z - len], i * 6);
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const material = new THREE.LineBasicMaterial({ color: 0xffd9d9, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
+    this.warpLines = new THREE.LineSegments(geometry, material);
+    this.warpLines.frustumCulled = false;
+    this.camera.add(this.warpLines);
+    this.disposables.push(geometry, material);
+  }
+
+  updateWarp(dt, speed) {
+    const attr = this.warpLines.geometry.attributes.position;
+    const arr = attr.array;
+    const move = (20 + speed * 160) * dt;
+    this.warpSeeds.forEach((s, i) => {
+      s.z += move;
+      if (s.z > -1) s.z -= 92;
+      const stretch = s.len * (0.4 + this.warp * 3);
+      arr[i * 6 + 2] = s.z;
+      arr[i * 6 + 5] = s.z - stretch;
+    });
+    attr.needsUpdate = true;
+    this.warpLines.material.opacity = this.warp * 0.55;
+    this.warpLines.visible = this.warp > 0.01;
   }
 
   // ---------- atmosphere ----------
@@ -733,7 +827,8 @@ export class World {
     const wasMobile = this.mobile;
     this.mobile = w < 760;
     this.camera.aspect = w / h;
-    this.camera.fov = this.camera.aspect < 0.8 ? 68 : 60;
+    this.baseFov = this.camera.aspect < 0.8 ? 68 : 60;
+    this.camera.fov = this.baseFov + (this.warp || 0) * 16;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h, false);
     if (this.composer) {
@@ -783,6 +878,26 @@ export class World {
     const n = STATIONS.length - 1;
     const r = Math.min(1, Math.max(0, u / n));
 
+    // Warp: how fast the camera is travelling between chapters.
+    const speed = Math.abs(u - this.prevU) / Math.max(realDt, 1e-3);
+    this.prevU = u;
+    const warpTarget = this.reduced ? 0 : Math.min(1, Math.max(0, (speed - 0.25) * 0.9));
+    this.warp += (warpTarget - this.warp) * (1 - Math.exp(-realDt * (warpTarget > this.warp ? 6 : 2.5)));
+    const fov = this.baseFov + this.warp * 16;
+    if (Math.abs(this.camera.fov - fov) > 0.01) {
+      this.camera.fov = fov;
+      this.camera.updateProjectionMatrix();
+    }
+    this.updateWarp(dt, speed);
+    if (this.bloom) this.bloom.strength = 0.5 + this.warp * 0.7;
+
+    const k = Math.min(n - 1, Math.floor(u));
+    const f = u - k;
+    const heat = HEAT[k] + (HEAT[Math.min(n, k + 1)] - HEAT[k]) * smooth(Math.min(1, Math.max(0, f)));
+    this.sky.material.uniforms.uHeat.value = heat;
+    this.sky.material.uniforms.uTime.value = t;
+    this.sky.material.uniforms.uWarp.value = this.warp;
+
     this.pointerSmooth.lerp(this.pointer, 1 - Math.exp(-realDt * 2.2));
     const cam = this.camRail.getPoint(r);
     const look = this.lookRail.getPoint(r);
@@ -796,6 +911,7 @@ export class World {
     this.camera.lookAt(this.lookAt);
     this.camera.rotateZ(Math.sin(u * 1.7) * 0.02);
     this.camLight.position.copy(cam);
+    this.sky.position.copy(cam);
 
     for (const name of Object.keys(this.stations)) {
       if (name === 'hero') continue;
