@@ -186,10 +186,13 @@ export class World {
   }
 
   station(name, group) {
+    // Each station hangs from a pivot that leans toward the pointer.
+    const pivot = new THREE.Group();
     const center = CENTERS[name];
-    if (center) group.position.copy(center);
-    this.scene.add(group);
-    this.stations[name] = { group, index: STATIONS.indexOf(name), update: () => {} };
+    if (center) pivot.position.copy(center);
+    pivot.add(group);
+    this.scene.add(pivot);
+    this.stations[name] = { group, pivot, index: STATIONS.indexOf(name), update: () => {} };
     return this.stations[name];
   }
 
@@ -358,8 +361,8 @@ export class World {
     group.add(inner);
     const textures = Array.from({ length: 24 }, (_, i) => this.tex(768, 900, (ctx, w, h, img) => drawPoster(ctx.canvas, i, img), i));
     this.tunnelReady = Promise.race([
-      Promise.all(textures.slice(0, 8).map((t) => t.userData.ready)),
-      new Promise((r) => setTimeout(r, 4000)),
+      Promise.all(textures.slice(0, 4).map((t) => t.userData.ready)),
+      new Promise((r) => setTimeout(r, 2500)),
     ]);
     const wall = new THREE.PlaneGeometry(GAP * 0.92, HALF_H * 2 - 0.54);
     const deck = new THREE.PlaneGeometry(HALF_W * 2 - 0.38, GAP * 0.92);
@@ -919,11 +922,18 @@ export class World {
       const local = u - s.index;
       if (name !== 'tunnel') s.group.visible = Math.abs(local) < 1.6;
       if (name === 'tunnel') s.update(u, dt);
-      else if (s.group.visible) s.update(local, t, dt);
+      else if (s.group.visible) {
+        s.update(local, t, dt);
+        const lean = this.reduced ? 0 : Math.max(0, 1 - Math.abs(local) * 1.5);
+        s.pivot.rotation.y = this.pointerSmooth.x * 0.16 * lean;
+        s.pivot.rotation.x = this.pointerSmooth.y * 0.08 * lean;
+      }
     }
     for (const m of this.clickables) {
       const target = m.userData.hover ? 1.05 : 1;
       m.scale.setScalar(m.scale.x + (target - m.scale.x) * Math.min(1, dt * 8));
+      const tz = m.userData.hover ? -this.pointerSmooth.x * 0.08 : 0;
+      m.rotation.z += (tz - m.rotation.z) * Math.min(1, dt * 6);
     }
     this.dust.rotation.z = t * 0.004;
 

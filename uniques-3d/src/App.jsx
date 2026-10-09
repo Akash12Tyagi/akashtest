@@ -4,7 +4,6 @@ import Chapters from './components/Chapters.jsx';
 import Footer from './components/Footer.jsx';
 import { SmartImg } from './components/shared.jsx';
 import { PHOTOS, LOGO } from './data.js';
-import { World, STATIONS } from './world/World.js';
 import './styles/chrome.css';
 import './styles/world.css';
 
@@ -36,6 +35,16 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    let cleanup = () => {};
+    let cancelled = false;
+    // three.js and the world load as a separate chunk so the page shell paints first.
+    import('./world/World.js').then(({ World, STATIONS }) => {
+      if (!cancelled) cleanup = start(World, STATIONS);
+    }).catch(() => { setNoWebgl(true); setLoaded(true); document.body.classList.add('is-ready'); });
+    return () => { cancelled = true; cleanup(); };
+  }, []);
+
+  function start(World, STATIONS) {
     const canvas = canvasRef.current;
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     let world;
@@ -56,7 +65,7 @@ export default function App() {
       setNoWebgl(true);
       setLoaded(true);
       document.body.classList.add('is-ready');
-      return undefined;
+      return () => {};
     }
     worldRef.current = world;
     world.setStories(storiesRef.current.items, storiesRef.current.active);
@@ -151,7 +160,7 @@ export default function App() {
       world.dispose();
       worldRef.current = null;
     };
-  }, []);
+  }
 
   useEffect(() => {
     if (lightbox === null) return undefined;
