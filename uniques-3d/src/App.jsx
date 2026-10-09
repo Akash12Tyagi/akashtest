@@ -8,6 +8,7 @@ import { World, STATIONS } from './world/World.js';
 import './styles/chrome.css';
 import './styles/world.css';
 
+
 const CHAPTER_NAMES = ['Intro', 'Journey', 'Impact', 'About', 'Why us', 'Partners', 'Startups', 'Events', 'Gallery', 'Channel', 'Stories', 'Join'];
 
 function openExternal(url) {

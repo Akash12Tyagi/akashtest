@@ -67,7 +67,7 @@ export default function Chapters({ active, onStories, onOpenGallery }) {
   return (
     <>
       <Chapter id="top" index={0} title="The Uniques Community" className="ch-hero">
-        <a className="hero-pill" href="#events"><span className="hero-pill-dot" />{HERO.pill}</a>
+        {/* <a className="hero-pill" href="#events"><span className="hero-pill-dot" />{HERO.pill}</a> */}
         <h1 className="hero-title">
           <span className="hero-line"><span>A Community of</span></span>
           <span className="hero-line"><span>Creators,</span></span>

@@ -34,7 +34,7 @@ export const NAV = [
 ];
 
 export const HERO = {
-  pill: 'View Our Vibrant Events ✨',
+  // pill: 'View Our Vibrant Events ✨',
   title: ['A Community of', 'Creators,', 'Dreamers & Doers.'],
   sub: 'Experience tech like never before with The UNIQUES Community — vibrant events, hands-on sessions, and pure innovation.',
   tags: ['Corporate Culture', 'Fullstack Developers', 'Future Leaders', 'Graphic Designers', 'Philanthropists',
